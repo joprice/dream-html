@@ -75,6 +75,24 @@ let to_string node =
 
 let pp ppf node = node |> to_string |> Format.pp_print_string ppf
 
+let html_escape s =
+  let buffer = Buffer.create (String.length s * 2) in
+  s
+  |> String.iter
+       begin
+         function
+         | '&' -> Buffer.add_string buffer "&amp;"
+         | '<' -> Buffer.add_string buffer "&lt;"
+         | '>' -> Buffer.add_string buffer "&gt;"
+         | '"' -> Buffer.add_string buffer "&quot;"
+         | '\'' -> Buffer.add_string buffer "&#x27;"
+         | c -> Buffer.add_char buffer c
+       end;
+  Buffer.contents buffer
+
+let escape raw = if raw then Fun.id else html_escape
+
+(*
 let respond ?status ?code ?headers node =
   Dream.html ?status ?code ?headers @@ to_string node
 
@@ -84,6 +102,7 @@ let set_body resp node =
 
 let write stream node = Dream.write stream (to_string node)
 let escape raw = if raw then Fun.id else Dream.html_escape
+*)
 let attr name = name, ""
 
 let string_attr name ?(raw = false) fmt =
@@ -104,8 +123,9 @@ let text_tag name ?(raw = false) attrs fmt =
     fmt
 
 let txt ?(raw = false) fmt = Printf.ksprintf (fun s -> Txt (escape raw s)) fmt
-let csrf_tag req = req |> Dream.csrf_tag |> txt ~raw:true "%s"
-let comment str = Comment (Dream.html_escape str)
+
+(*let csrf_tag req = req |> csrf_tag |> txt ~raw:true "%s"*)
+let comment str = Comment (html_escape str)
 
 let ( +@ ) node attr =
   match node with
@@ -267,7 +287,20 @@ module Attr = struct
   let form fmt = string_attr "form" fmt
   let formaction fmt = string_attr "formaction" fmt
   let formenctype value = "formenctype", enctype_string value
-  let formmethod value = "formmethod", Dream.method_to_string value
+
+  let method_to_string = function
+    | `GET -> "GET"
+    | `POST -> "POST"
+    | `PUT -> "PUT"
+    | `DELETE -> "DELETE"
+    | `HEAD -> "HEAD"
+    | `CONNECT -> "CONNECT"
+    | `OPTIONS -> "OPTIONS"
+    | `TRACE -> "TRACE"
+    | `PATCH -> "PATCH"
+    | `Method method_ -> method_
+
+  let formmethod value = "formmethod", method_to_string value
   let formnovalidate = attr "formnovalidate"
   let formtarget fmt = string_attr "formtarget" fmt
   let headers fmt = string_attr "headers" fmt
@@ -327,7 +360,7 @@ module Attr = struct
   let max fmt = string_attr "max" fmt
   let maxlength = int_attr "maxlength"
   let media fmt = string_attr "media" fmt
-  let method_ value = "method", Dream.method_to_string value
+  let method_ value = "method", method_to_string value
   let min fmt = string_attr "min" fmt
   let minlength = int_attr "minlength"
   let multiple = attr "multiple"

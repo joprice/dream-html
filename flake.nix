@@ -1,5 +1,5 @@
 {
-  description = "ocaml-trace";
+  description = "dream-html";
 
   inputs = {
     nix-filter.url = "github:numtide/nix-filter";
@@ -28,7 +28,7 @@
       devShells. default = mkShell
         {
           propagatedBuildInputs = [
-            mtime
+            uri
           ];
           nativeBuildInputs = [
             findlib
