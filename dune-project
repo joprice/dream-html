@@ -20,7 +20,4 @@
  (synopsis "HTML generator eDSL for Dream")
  (description
   "Write HTML directly in your OCaml source files with editor support.")
- (documentation "https://yawaramin.github.io/dream-html/")
- (depends
-  (dream
-   (>= 1.0.0~alpha3))))
+ (documentation "https://yawaramin.github.io/dream-html/"))
