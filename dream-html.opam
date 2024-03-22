@@ -12,6 +12,8 @@ doc: "https://yawaramin.github.io/dream-html/"
 bug-reports: "https://github.com/yawaramin/dream-html/issues"
 depends: [
   "dune" {>= "2.7"}
+  "ocaml" {>= "4.08.0"}
+  "uri"
   "odoc" {with-doc}
 ]
 build: [
